@@ -14,16 +14,6 @@ class Dados:
 
         # Connection with the spreadsheet
         xls = pd.ExcelFile(file_name)
-        # wb = load_workbook(file_name,data_only=True)
-        # sheet = wb['INDEX']
-        
-        # Read data
-        # self.nI = sheet['C1'].value
-        # self.nK = sheet['C2'].value
-        # self.nC = sheet['C3'].value
-        # self.nT = sheet['C4'].value
-        # self.nDT = sheet['C5'].value
-        # self.nP = sheet['C6'].value
 
         # DF - Demanda
         self.DF = pd.read_excel(xls, 'PAR DF', usecols='R:W')
