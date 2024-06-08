@@ -8,9 +8,17 @@ Created on Sun May  12 22:49:20 2024
 #---------------------------------------------------------------------------------------------------------------------------------------#
 import pandas as pd
 #---------------------------------------------------------------------------------------------------------------------------------------#
+def rotate(l, n):
+            return l[n:] + l[:n]
+
 class Dados:
 
     def __init__(self, file_name):
+        # Definir conjuntos (como exemplo, defina os conjuntos de portos, tipos de contêineres, etc.)
+        self.P = range(1, 11)  # Exemplo de 10 portos
+        self.K = range(1, 5)   # Exemplo de 3 tipos de contêineres
+        self.C = range(1, 3)   # Exemplo de 5 tipos de carga
+        self.T = range(1, 13)  # Exemplo de 12 períodos de tempo
 
         # Connection with the spreadsheet
         xls = pd.ExcelFile(file_name)
@@ -69,14 +77,14 @@ class Dados:
         self.M = pd.read_excel(xls, 'PAR M', usecols='J:M')
 
         # VV - Número de navios alocados na rota 
-        self.VV = pd.read_excel(xls, 'PAR VV', usecols='B').columns[0]
+        self.NV = pd.read_excel(xls, 'PAR VV', usecols='B').columns[0]
         
         # VC - Viagem redonda?
-        self.VC = pd.read_excel(xls, 'PAR VC', usecols='B').columns[0]
+        self.TC = pd.read_excel(xls, 'PAR VC', usecols='B').columns[0]
         # O que significa 0,93 no parâmetro de viagem redonda? Achei que seria bool (0 ou 1)
         
         # VT - Capacidade do navio em TEUs
-        self.VT = pd.read_excel(xls, 'PAR VT', usecols='B').columns[0]
+        self.NT = pd.read_excel(xls, 'PAR VT', usecols='B').columns[0]
         
         # VD - Deadweight de carga
         self.VD = pd.read_excel(xls, 'PAR VD', usecols='B').columns[0]
@@ -87,7 +95,7 @@ class Dados:
         # NF - Capacidade maxima de contêineres de 40 pés
         self.NF = pd.read_excel(xls, 'PAR NF', usecols='B').columns[0]
 
-        # NE - Capacidade máxima de estoque
+        # NE - Capacidade de armazenagem de vazios no porto i
         self.NE = pd.read_excel(xls, 'PAR NE', usecols='D:E')
 
         # Read NC
@@ -100,5 +108,26 @@ class Dados:
         self.Q = pd.read_excel(xls, 'PAR Q', usecols='A:B', nrows=4)
         
         # Par N
-        self.N = self.VV * self.VT / self.VC
+        self.N = self.NV * self.NT / self.TC
+
+        self.LF = {}
+        self.LE = {}
+
+        for j in self.P:
+            for k in self.K:
+                for delta in self.T:
+                    # Create a variable with the current index (J, K, Delta)
+                    self.LF[(j, k, delta)] = 0.8 if delta == 1 else 0.2 if delta == 2 else 0
+                    self.LE[(j, k, delta)] = 0.8 if delta == 1 else 0.2 if delta == 2 else 0
+        
+        self.TR = {}
+        T = [i for i in self.T]
+        for t in range(len(T)):
+            for t_linha in range(len(T)):
+                for delta in T:
+                    self.TR[T[t], delta, T[t_linha]] = 1 if T[t] == rotate(T, delta)[t_linha] else 0
+
+
+
+        
         
