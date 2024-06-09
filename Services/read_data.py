@@ -87,7 +87,7 @@ class Dados:
         self.NT = pd.read_excel(xls, 'PAR VT', usecols='B').columns[0]
         
         # VD - Deadweight de carga
-        self.VD = pd.read_excel(xls, 'PAR VD', usecols='B').columns[0]
+        self.ND = pd.read_excel(xls, 'PAR VD', usecols='B').columns[0]
         
         # NP - Capacidade máxima de plugs para contêineres refrigerados
         self.NP = pd.read_excel(xls, 'PAR NP', usecols='B').columns[0]
@@ -126,8 +126,3 @@ class Dados:
             for t_linha in range(len(T)):
                 for delta in T:
                     self.TR[T[t], delta, T[t_linha]] = 1 if T[t] == rotate(T, delta)[t_linha] else 0
-
-
-
-        
-        
