@@ -16,7 +16,7 @@ class Dados:
 
     def __init__(self, file_name):
         # Definir conjuntos (como exemplo, defina os conjuntos de portos, tipos de contêineres, etc.)
-        self.P = range(1, 10)  # Exemplo de 9 portos
+        self.P = range(1, 11)  # Exemplo de 9 portos
         self.K = range(1, 5)   # Exemplo de 3 tipos de contêineres
         self.C = range(1, 3)   # Exemplo de 5 tipos de carga
         self.T = range(1, 13)  # Exemplo de 12 períodos de tempo
@@ -137,11 +137,3 @@ class Dados:
                     self.LF[(j, k, delta)] = 0.8 if delta == 1 else 0.2 if delta == 2 else 0
                     self.LE[(j, k, delta)] = 0.8 if delta == 1 else 0.2 if delta == 2 else 0
         
-        # Alterei TR com base nos DT de 0 a 3, mas faria sentido deixar como 0 a 11?
-        # self.TR = {}
-        # T = [i for i in self.T]
-        # T_deltas = [i for i in self.DT]
-        # for t in range(len(T)):
-        #     for t_linha in range(len(T)):
-        #         for delta in T_deltas:
-        #             self.TR[T[t], delta, T[t_linha]] = 1 if T[t] == rotate(T, delta)[t_linha] else 0
