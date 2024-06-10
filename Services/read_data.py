@@ -7,6 +7,7 @@ Created on Sun May  12 22:49:20 2024
 
 #---------------------------------------------------------------------------------------------------------------------------------------#
 import pandas as pd
+import itertools
 #---------------------------------------------------------------------------------------------------------------------------------------#
 def rotate(l, n):
             return l[n:] + l[:n]
@@ -15,16 +16,27 @@ class Dados:
 
     def __init__(self, file_name):
         # Definir conjuntos (como exemplo, defina os conjuntos de portos, tipos de contêineres, etc.)
-        self.P = range(1, 11)  # Exemplo de 10 portos
+        self.P = range(1, 10)  # Exemplo de 9 portos
         self.K = range(1, 5)   # Exemplo de 3 tipos de contêineres
         self.C = range(1, 3)   # Exemplo de 5 tipos de carga
         self.T = range(1, 13)  # Exemplo de 12 períodos de tempo
+        self.DT = range(0, 4)  # Exemplo com deltas de 0 a 3
 
         # Connection with the spreadsheet
         xls = pd.ExcelFile(file_name)
 
         # DF - Demanda
         self.DF = pd.read_excel(xls, 'PAR DF', usecols='R:W')
+        all_combinations = list(itertools.product(range(1,6), range(1,6), self.K, self.C, self.T))
+        df = pd.DataFrame()
+        df[['Key']] = self.DF[['I','J','K','C','T']].apply(tuple, axis=1).to_frame()
+        df[['Values']] = self.DF[['DF']]
+        result_dict = dict(zip(df['Key'], df['Values']))
+        # Fill missing combinations with zeros
+        for combination in all_combinations:
+            if combination not in result_dict:
+                result_dict[combination] = 0
+        self.DF = result_dict
 
         # CF - Custo de mover contêiner cheio
         self.CF = pd.read_excel(xls, 'PAR CF', usecols='H:K')
@@ -68,6 +80,11 @@ class Dados:
 
         # TR - Correlação tempo com a taxa de retorno
         self.TR = pd.read_excel(xls, 'PAR TR', usecols='P:S')
+        df = pd.DataFrame()
+        df[['Key']] = self.TR[['T','DT','T1']].apply(tuple, axis=1).to_frame()
+        df[['Values']] = self.TR[['TR']]
+        result_dict = dict(zip(df['Key'], df['Values']))
+        self.TR = result_dict
 
         # H - Deadweight
         self.H = pd.read_excel(xls, 'PAR H', usecols='E:G')
@@ -115,14 +132,16 @@ class Dados:
 
         for j in self.P:
             for k in self.K:
-                for delta in self.T:
+                for delta in self.DT:
                     # Create a variable with the current index (J, K, Delta)
                     self.LF[(j, k, delta)] = 0.8 if delta == 1 else 0.2 if delta == 2 else 0
                     self.LE[(j, k, delta)] = 0.8 if delta == 1 else 0.2 if delta == 2 else 0
         
-        self.TR = {}
-        T = [i for i in self.T]
-        for t in range(len(T)):
-            for t_linha in range(len(T)):
-                for delta in T:
-                    self.TR[T[t], delta, T[t_linha]] = 1 if T[t] == rotate(T, delta)[t_linha] else 0
+        # Alterei TR com base nos DT de 0 a 3, mas faria sentido deixar como 0 a 11?
+        # self.TR = {}
+        # T = [i for i in self.T]
+        # T_deltas = [i for i in self.DT]
+        # for t in range(len(T)):
+        #     for t_linha in range(len(T)):
+        #         for delta in T_deltas:
+        #             self.TR[T[t], delta, T[t_linha]] = 1 if T[t] == rotate(T, delta)[t_linha] else 0
