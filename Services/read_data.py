@@ -15,6 +15,7 @@ def rotate(l, n):
 class Dados:
 
     def __init__(self, file_name):
+        
         # Definir conjuntos (como exemplo, defina os conjuntos de portos, tipos de contêineres, etc.)
         self.P = range(1, 11)  # Exemplo de 9 portos
         self.K = range(1, 5)   # Exemplo de 3 tipos de contêineres
