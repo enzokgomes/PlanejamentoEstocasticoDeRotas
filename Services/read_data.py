@@ -17,9 +17,12 @@ class Dados:
     def __init__(self, file_name):
         
         # Definir conjuntos (como exemplo, defina os conjuntos de portos, tipos de contêineres, etc.)
-        self.P = range(1, 11)  # Exemplo de 9 portos
-        self.K = range(1, 5)   # Exemplo de 3 tipos de contêineres
-        self.C = range(1, 3)   # Exemplo de 5 tipos de carga
+        self.P = range(1, 11)  # Exemplo de 10 portos
+        self.K = range(1, 5)   # Exemplo de 4 tipos de contêineres
+        self.K_Refrigerados = [2,4]
+        self.K_Nao_Refrigerados = [1,3]
+        self.K_40pes = [3,4]
+        self.C = range(1, 3)   # Exemplo de 2 tipos de carga
         self.T = range(1, 13)  # Exemplo de 12 períodos de tempo
         self.DT = range(0, 4)  # Exemplo com deltas de 0 a 3
 
@@ -94,18 +97,18 @@ class Dados:
         # M - Matriz de precedência
         self.M = pd.read_excel(xls, 'PAR M', usecols='J:M')
 
-        # VV - Número de navios alocados na rota 
-        self.NV = pd.read_excel(xls, 'PAR VV', usecols='B').columns[0]
+        # NV - Número de navios alocados na rota 
+        self.NV = pd.read_excel(xls, 'PAR NV', usecols='B').columns[0]
         
         # VC - Viagem redonda?
         self.TC = pd.read_excel(xls, 'PAR VC', usecols='B').columns[0]
         # O que significa 0,93 no parâmetro de viagem redonda? Achei que seria bool (0 ou 1)
         
-        # VT - Capacidade do navio em TEUs
-        self.NT = pd.read_excel(xls, 'PAR VT', usecols='B').columns[0]
+        # NT - Capacidade do navio em TEUs
+        self.NT = pd.read_excel(xls, 'PAR NT', usecols='B').columns[0]
         
-        # VD - Deadweight de carga
-        self.ND = pd.read_excel(xls, 'PAR VD', usecols='B').columns[0]
+        # ND - Deadweight de carga
+        self.ND = pd.read_excel(xls, 'PAR ND', usecols='B').columns[0]
         
         # NP - Capacidade máxima de plugs para contêineres refrigerados
         self.NP = pd.read_excel(xls, 'PAR NP', usecols='B').columns[0]
@@ -116,13 +119,13 @@ class Dados:
         # NE - Capacidade de armazenagem de vazios no porto i
         self.NE = pd.read_excel(xls, 'PAR NE', usecols='D:E')
 
-        # Read NC
+        # NC - Frota disponível de contêineres de índice k
         self.NC = pd.read_excel(xls, 'PAR NC', usecols='D:E')
 
         # G - 0 (dry) / 1 (reefer)
         self.G = pd.read_excel(xls, 'PAR G', usecols='A:B', nrows=4)
 
-        # Read Q
+        # Q - TEUs ocupados por um contêiner de índice k
         self.Q = pd.read_excel(xls, 'PAR Q', usecols='A:B', nrows=4)
         
         # Par N
