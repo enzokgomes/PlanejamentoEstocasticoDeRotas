@@ -9,13 +9,12 @@ Created on Sun May  12 22:49:20 2024
 import pandas as pd
 import itertools
 #---------------------------------------------------------------------------------------------------------------------------------------#
+
 def rotate(l, n):
             return l[n:] + l[:n]
 
 class Dados:
-
     def __init__(self, file_name):
-        
         # Definir conjuntos (como exemplo, defina os conjuntos de portos, tipos de contêineres, etc.)
         self.P = range(1, 11)  # Exemplo de 10 portos
         self.K = range(1, 5)   # Exemplo de 4 tipos de contêineres
@@ -29,13 +28,14 @@ class Dados:
         # Connection with the spreadsheet
         xls = pd.ExcelFile(file_name)
 
-        # DF - Demanda
+        # DF - Demanda de i para j de contêineres de índice k, tipo de carga c e período t
         self.DF = pd.read_excel(xls, 'PAR DF', usecols='R:W')
         all_combinations = list(itertools.product(range(1,6), range(1,6), self.K, self.C, self.T))
         df = pd.DataFrame()
         df[['Key']] = self.DF[['I','J','K','C','T']].apply(tuple, axis=1).to_frame()
         df[['Values']] = self.DF[['DF']]
         result_dict = dict(zip(df['Key'], df['Values']))
+
         # Fill missing combinations with zeros
         for combination in all_combinations:
             if combination not in result_dict:
@@ -76,10 +76,10 @@ class Dados:
         # PI - Share mínimo de participação no tipo de carga
         self.PI = pd.read_excel(xls, 'PAR PI', usecols='P:S')
 
-        # SF - Taxa de retorno dos contêineres
+        # SF - Taxa de retorno dos contêineres cheios
         self.SF = pd.read_excel(xls, 'PAR SF', usecols='H:K')
 
-        # SE - Taxa retorno dos contêineres
+        # SE - Taxa retorno dos contêineres vazios
         self.SE = pd.read_excel(xls, 'PAR SE', usecols='G:I')
 
         # TR - Correlação tempo com a taxa de retorno
