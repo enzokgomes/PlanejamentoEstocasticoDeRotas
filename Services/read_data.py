@@ -27,7 +27,25 @@ class Dados:
 
         # Connection with the spreadsheet
         xls = pd.ExcelFile(file_name)
+        
+        # Portos - Lista de portos
+        self.Portos = pd.read_excel(xls, 'Portos', usecols='A:C')
 
+        # Cargas - Lista de tipos de carga
+        self.Cargas = pd.read_excel(xls, 'Cargas', usecols='A:B')
+
+        # Rota - Rota de navios
+        self.Rota = pd.read_excel(xls, 'Rota', usecols='B:D')
+
+        # Período - Período de tempo
+        self.T = range(1, 13)  # 12 meses do ano
+
+        # Demanda - Demanda de contêineres de I para J, de carga do tipo K e período T
+        self.Demanda = pd.read_excel(xls, 'Demanda', usecols='E:J')
+
+        #Frete - Frete de contêineres de I para J
+        self.Frete = pd.read_excel(xls, 'Frete', usecols='A:C')
+        
         # DF - Demanda de i para j de contêineres de índice k, tipo de carga c e período t
         self.DF = pd.read_excel(xls, 'PAR DF', usecols='R:W')
         all_combinations = list(itertools.product(range(1,6), range(1,6), self.K, self.C, self.T))
@@ -65,7 +83,6 @@ class Dados:
 
         # WF - Peso do contêiner cheio
         self.WF = pd.read_excel(xls, 'PAR WF', usecols='G:I')
-        # Alguns não têm peso?
 
         # WE - Peso do contêiner vazio
         self.WE = pd.read_excel(xls, 'PAR WE', usecols='D:E')
@@ -92,7 +109,6 @@ class Dados:
 
         # H - Deadweight
         self.H = pd.read_excel(xls, 'PAR H', usecols='E:G')
-        # O que é NB vs SB?
 
         # M - Matriz de precedência
         self.M = pd.read_excel(xls, 'PAR M', usecols='J:M')
@@ -121,9 +137,6 @@ class Dados:
 
         # NC - Frota disponível de contêineres de índice k
         self.NC = pd.read_excel(xls, 'PAR NC', usecols='D:E')
-
-        # G - 0 (dry) / 1 (reefer)
-        self.G = pd.read_excel(xls, 'PAR G', usecols='A:B', nrows=4)
 
         # Q - TEUs ocupados por um contêiner de índice k
         self.Q = pd.read_excel(xls, 'PAR Q', usecols='A:B', nrows=4)
