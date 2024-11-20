@@ -9,12 +9,13 @@ Created on Sun May  12 22:49:20 2024
 import pandas as pd
 import itertools
 #---------------------------------------------------------------------------------------------------------------------------------------#
-
 def rotate(l, n):
             return l[n:] + l[:n]
 
 class Dados:
+
     def __init__(self, file_name):
+        
         # Definir conjuntos (como exemplo, defina os conjuntos de portos, tipos de contêineres, etc.)
         self.P = range(1, 11)  # Exemplo de 10 portos
         self.K = range(1, 5)   # Exemplo de 4 tipos de contêineres
@@ -27,33 +28,14 @@ class Dados:
 
         # Connection with the spreadsheet
         xls = pd.ExcelFile(file_name)
-        
-        # Portos - Lista de portos
-        self.Portos = pd.read_excel(xls, 'Portos', usecols='A:C')
 
-        # Cargas - Lista de tipos de carga
-        self.Cargas = pd.read_excel(xls, 'Cargas', usecols='A:B')
-
-        # Rota - Rota de navios
-        self.Rota = pd.read_excel(xls, 'Rota', usecols='B:D')
-
-        # Período - Período de tempo
-        self.T = range(1, 13)  # 12 meses do ano
-
-        # Demanda - Demanda de contêineres de I para J, de carga do tipo K e período T
-        self.Demanda = pd.read_excel(xls, 'Demanda', usecols='E:J')
-
-        #Frete - Frete de contêineres de I para J
-        self.Frete = pd.read_excel(xls, 'Frete', usecols='A:C')
-        
-        # DF - Demanda de i para j de contêineres de índice k, tipo de carga c e período t
+        # DF - Demanda
         self.DF = pd.read_excel(xls, 'PAR DF', usecols='R:W')
         all_combinations = list(itertools.product(range(1,6), range(1,6), self.K, self.C, self.T))
         df = pd.DataFrame()
         df[['Key']] = self.DF[['I','J','K','C','T']].apply(tuple, axis=1).to_frame()
         df[['Values']] = self.DF[['DF']]
         result_dict = dict(zip(df['Key'], df['Values']))
-
         # Fill missing combinations with zeros
         for combination in all_combinations:
             if combination not in result_dict:
@@ -83,6 +65,7 @@ class Dados:
 
         # WF - Peso do contêiner cheio
         self.WF = pd.read_excel(xls, 'PAR WF', usecols='G:I')
+        # Alguns não têm peso?
 
         # WE - Peso do contêiner vazio
         self.WE = pd.read_excel(xls, 'PAR WE', usecols='D:E')
@@ -93,10 +76,10 @@ class Dados:
         # PI - Share mínimo de participação no tipo de carga
         self.PI = pd.read_excel(xls, 'PAR PI', usecols='P:S')
 
-        # SF - Taxa de retorno dos contêineres cheios
+        # SF - Taxa de retorno dos contêineres
         self.SF = pd.read_excel(xls, 'PAR SF', usecols='H:K')
 
-        # SE - Taxa retorno dos contêineres vazios
+        # SE - Taxa retorno dos contêineres
         self.SE = pd.read_excel(xls, 'PAR SE', usecols='G:I')
 
         # TR - Correlação tempo com a taxa de retorno
@@ -109,6 +92,7 @@ class Dados:
 
         # H - Deadweight
         self.H = pd.read_excel(xls, 'PAR H', usecols='E:G')
+        # O que é NB vs SB?
 
         # M - Matriz de precedência
         self.M = pd.read_excel(xls, 'PAR M', usecols='J:M')
@@ -138,6 +122,9 @@ class Dados:
         # NC - Frota disponível de contêineres de índice k
         self.NC = pd.read_excel(xls, 'PAR NC', usecols='D:E')
 
+        # G - 0 (dry) / 1 (reefer)
+        self.G = pd.read_excel(xls, 'PAR G', usecols='A:B', nrows=4)
+
         # Q - TEUs ocupados por um contêiner de índice k
         self.Q = pd.read_excel(xls, 'PAR Q', usecols='A:B', nrows=4)
         
@@ -153,4 +140,3 @@ class Dados:
                     # Create a variable with the current index (J, K, Delta)
                     self.LF[(j, k, delta)] = 0.8 if delta == 1 else 0.2 if delta == 2 else 0
                     self.LE[(j, k, delta)] = 0.8 if delta == 1 else 0.2 if delta == 2 else 0
-        
