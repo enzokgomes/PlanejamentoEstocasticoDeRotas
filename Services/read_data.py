@@ -8,6 +8,7 @@ Created on Sun May  12 22:49:20 2024
 #---------------------------------------------------------------------------------------------------------------------------------------#
 import pandas as pd
 import itertools
+import Services.matriz_precedencia as mp
 #---------------------------------------------------------------------------------------------------------------------------------------#
 def rotate(l, n):
             return l[n:] + l[:n]
@@ -16,6 +17,21 @@ class Dados:
 
     def __init__(self, file_name):
         
+        self.NB = [1, 2, 3, 4, 5]
+        self.SB = [5, 4, 3, 2, 1]
+
+        # Obtém a matriz de precedência a partir da rota
+        self.M = mp.gerar_matriz_precedencia(self.NB, self.SB)
+
+        # Ordem dos portos
+        ordem = self.NB + self.SB
+
+        # Indexação dos portos
+        self.ordem = pd.DataFrame(ordem, index=[i + 1 for i in range(len(ordem))], columns=['IdPorto'])
+
+        self.port_nums = self.ordem['IdPorto'].drop_duplicates().values
+        self.port_nums.sort()
+
         # Definir conjuntos (como exemplo, defina os conjuntos de portos, tipos de contêineres, etc.)
         self.P = range(1, 11)  # Exemplo de 10 portos
         self.K = range(1, 5)   # Exemplo de 4 tipos de contêineres
@@ -94,9 +110,6 @@ class Dados:
         self.H = pd.read_excel(xls, 'PAR H', usecols='E:G')
         # O que é NB vs SB?
 
-        # M - Matriz de precedência
-        self.M = pd.read_excel(xls, 'PAR M', usecols='J:M')
-
         # NV - Número de navios alocados na rota 
         self.NV = pd.read_excel(xls, 'PAR NV', usecols='B').columns[0]
         
@@ -134,7 +147,7 @@ class Dados:
         self.LF = {}
         self.LE = {}
 
-        for j in self.P:
+        for j in self.port_nums:
             for k in self.K:
                 for delta in self.DT:
                     # Create a variable with the current index (J, K, Delta)
