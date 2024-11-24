@@ -17,8 +17,17 @@ class Dados:
 
     def __init__(self, file_name):
         
-        self.NB = [1, 2, 3, 4, 5]
-        self.SB = [5, 4, 3, 2, 1]
+
+        # Connection with the spreadsheet
+        xls = pd.ExcelFile(file_name)
+
+        self.Rota = pd.read_excel(xls, 'ROTA', usecols='A:B')
+
+        # Separa os dados em NB e SB
+        self.NB = self.Rota[self.Rota["Porto"].str.startswith("NB")]["IdPorto"].tolist()
+        self.SB = self.Rota[self.Rota["Porto"].str.startswith("SB")]["IdPorto"].tolist()
+
+
 
         # Obtém a matriz de precedência a partir da rota
         self.M = mp.gerar_matriz_precedencia(self.NB, self.SB)
@@ -33,21 +42,18 @@ class Dados:
         self.port_nums.sort()
 
         # Definir conjuntos (como exemplo, defina os conjuntos de portos, tipos de contêineres, etc.)
-        self.P = range(1, 11)  # Exemplo de 10 portos
+        self.P = range(1, len(ordem) + 1) 
         self.K = range(1, 5)   # Exemplo de 4 tipos de contêineres
         self.K_Refrigerados = [2,4]
         self.K_Nao_Refrigerados = [1,3]
-        self.K_40pes = [3,4]
+        self.K_40pes = [1, 2]
         self.C = range(1, 3)   # Exemplo de 2 tipos de carga
         self.T = range(1, 13)  # Exemplo de 12 períodos de tempo
         self.DT = range(0, 4)  # Exemplo com deltas de 0 a 3
 
-        # Connection with the spreadsheet
-        xls = pd.ExcelFile(file_name)
-
         # DF - Demanda
         self.DF = pd.read_excel(xls, 'PAR DF', usecols='R:W')
-        all_combinations = list(itertools.product(range(1,6), range(1,6), self.K, self.C, self.T))
+        all_combinations = list(itertools.product(self.P, self.P, self.K, self.C, self.T))
         df = pd.DataFrame()
         df[['Key']] = self.DF[['I','J','K','C','T']].apply(tuple, axis=1).to_frame()
         df[['Values']] = self.DF[['DF']]
@@ -98,13 +104,8 @@ class Dados:
         # SE - Taxa retorno dos contêineres
         self.SE = pd.read_excel(xls, 'PAR SE', usecols='G:I')
 
-        # TR - Correlação tempo com a taxa de retorno
-        self.TR = pd.read_excel(xls, 'PAR TR', usecols='P:S')
-        df = pd.DataFrame()
-        df[['Key']] = self.TR[['T','DT','T1']].apply(tuple, axis=1).to_frame()
-        df[['Values']] = self.TR[['TR']]
-        result_dict = dict(zip(df['Key'], df['Values']))
-        self.TR = result_dict
+        self.TR = lambda t, delta, t_ : 1 if (t + delta - t_) % len(self.T) == 0 else 0
+
 
         # H - Deadweight
         self.H = pd.read_excel(xls, 'PAR H', usecols='E:G')
@@ -153,3 +154,5 @@ class Dados:
                     # Create a variable with the current index (J, K, Delta)
                     self.LF[(j, k, delta)] = 0.8 if delta == 1 else 0.2 if delta == 2 else 0
                     self.LE[(j, k, delta)] = 0.8 if delta == 1 else 0.2 if delta == 2 else 0
+        
+        xls.close()
