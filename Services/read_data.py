@@ -23,6 +23,16 @@ class Dados:
 
         self.Rota = pd.read_excel(xls, 'ROTA', usecols='A:B')
 
+        self.De_Para_Portos = pd.read_excel(xls, 'DE-PARA', usecols='A:B')
+
+        self.De_Para_Trechos = pd.read_excel(xls, 'DE-PARA', usecols='D:E')
+
+        self.De_Para_K = pd.read_excel(xls, 'DE-PARA', usecols='G:H')
+
+        self.De_Para_C = pd.read_excel(xls, 'DE-PARA', usecols='J:K')
+
+        self.De_Para_T = pd.read_excel(xls, 'DE-PARA', usecols='M:N')
+
         # Separa os dados em NB e SB
         self.NB = self.Rota[self.Rota["Porto"].str.startswith("NB")]["IdPorto"].tolist()
         self.SB = self.Rota[self.Rota["Porto"].str.startswith("SB")]["IdPorto"].tolist()
@@ -53,7 +63,7 @@ class Dados:
 
         # DF - Demanda
         self.DF = pd.read_excel(xls, 'PAR DF', usecols='R:W')
-        all_combinations = list(itertools.product(self.P, self.P, self.K, self.C, self.T))
+        all_combinations = list(itertools.product(self.port_nums, self.port_nums, self.K, self.C, self.T))
         df = pd.DataFrame()
         df[['Key']] = self.DF[['I','J','K','C','T']].apply(tuple, axis=1).to_frame()
         df[['Values']] = self.DF[['DF']]
@@ -152,7 +162,7 @@ class Dados:
             for k in self.K:
                 for delta in self.DT:
                     # Create a variable with the current index (J, K, Delta)
-                    self.LF[(j, k, delta)] = 0.8 if delta == 1 else 0.2 if delta == 2 else 0
-                    self.LE[(j, k, delta)] = 0.8 if delta == 1 else 0.2 if delta == 2 else 0
+                    self.LF[(j, k, delta)] = 1 if delta == 0 else 0
+                    self.LE[(j, k, delta)] = 1 if delta == 0 else 0
         
         xls.close()
