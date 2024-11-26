@@ -61,6 +61,9 @@ class Dados:
         self.T = range(1, 13)  # Exemplo de 12 períodos de tempo
         self.DT = range(0, 4)  # Exemplo com deltas de 0 a 3
 
+        # DP - Distância entre os portos
+        self.DP = pd.read_excel(xls, 'PAR DP', usecols='A:C')
+
         # DF - Demanda
         self.DF = pd.read_excel(xls, 'PAR DF', usecols='R:W')
         all_combinations = list(itertools.product(self.port_nums, self.port_nums, self.K, self.C, self.T))
@@ -82,6 +85,9 @@ class Dados:
 
         # CS - Custo de estoque
         self.CS = pd.read_excel(xls, 'PAR CS', usecols='D:E')
+
+        # CSC - Custo de escala (falta implementar)
+        self.CSC = pd.read_excel(xls, 'PAR CSC', usecols='A:C')
 
         # CR - Custo de reparo
         self.CR = pd.read_excel(xls, 'PAR CR', usecols='G:I')
@@ -114,8 +120,14 @@ class Dados:
         # SE - Taxa retorno dos contêineres
         self.SE = pd.read_excel(xls, 'PAR SE', usecols='G:I')
 
+        # TR - Relação entre instantes de tempo
         self.TR = lambda t, delta, t_ : 1 if (t + delta - t_) % len(self.T) == 0 else 0
 
+        # TM - Tempo de movimentação de contêineres (contêineres/h)
+        self.TM = pd.read_excel(xls, 'PAR TM', usecols='A:B')
+
+        # TO - Tempo de operação portuária (em horas) - entrada, atracagem, saída
+        self.TO = pd.read_excel(xls, 'PAR TO', usecols='A:B')
 
         # H - Deadweight
         self.H = pd.read_excel(xls, 'PAR H', usecols='E:G')
