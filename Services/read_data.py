@@ -37,8 +37,6 @@ class Dados:
         self.NB = self.Rota[self.Rota["Porto"].str.startswith("NB")]["IdPorto"].tolist()
         self.SB = self.Rota[self.Rota["Porto"].str.startswith("SB")]["IdPorto"].tolist()
 
-
-
         # Obtém a matriz de precedência a partir da rota
         self.M = mp.gerar_matriz_precedencia(self.NB, self.SB)
 
@@ -46,7 +44,10 @@ class Dados:
         ordem = self.NB + self.SB
 
         # Indexação dos portos
-        self.ordem = pd.DataFrame(ordem, index=[i + 1 for i in range(len(ordem))], columns=['IdPorto'])
+        self.ordem = pd.DataFrame(0, index=[i + 1 for i in range(len(ordem))], columns=['IdPorto', 'DP', 'TO'])
+
+        for i in range(len(ordem)):
+            self.ordem.loc[i + 1, 'IdPorto'] = ordem[i]
 
         self.port_nums = self.ordem['IdPorto'].drop_duplicates().values
         self.port_nums.sort()
@@ -63,6 +64,11 @@ class Dados:
 
         # DP - Distância entre os portos
         self.DP = pd.read_excel(xls, 'PAR DP', usecols='A:C')
+
+        for i in self.P[:-1]:
+            saida = self.ordem.loc[i].values[0]
+            chegada = self.ordem.loc[i+1].values[0]
+            self.ordem.loc[i, 'DP'] = self.DP[(self.DP['I'] == saida) & (self.DP['J'] == chegada)]['DP'].values[0]
 
         # DF - Demanda
         self.DF = pd.read_excel(xls, 'PAR DF', usecols='R:W')
@@ -128,6 +134,10 @@ class Dados:
 
         # TO - Tempo de operação portuária (em horas) - entrada, atracagem, saída
         self.TO = pd.read_excel(xls, 'PAR TO', usecols='A:B')
+
+        for i in self.P:
+             porto = self.ordem.loc[i].values[0]
+             self.ordem.loc[i, 'TO'] = self.TO[self.TO['I'] == porto]['TO'].values[0]
 
         # H - Deadweight
         self.H = pd.read_excel(xls, 'PAR H', usecols='E:G')
