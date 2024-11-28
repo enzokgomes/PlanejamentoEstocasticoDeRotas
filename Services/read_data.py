@@ -107,6 +107,15 @@ class Dados:
         # E0 - Estoque inicial
         self.E0 = pd.read_excel(xls, 'PAR E0', usecols='G:I')
 
+        # FUEL - Custo de combustível (VLSFO, MDO)
+        self.FUEL = pd.read_excel(xls, 'PAR FUEL', usecols='A:C')
+
+        # MC - Taxa de consumo de MDO em viagem e no porto
+        self.MC = pd.read_excel(xls, 'PAR MC', usecols='A:B')
+
+        # DC - Distância entre porto e capital
+        self.DC = pd.read_excel(xls, 'PAR DEPOTS', usecols='A:B') # Alterar nome da aba para DC
+
         # WF - Peso do contêiner cheio
         self.WF = pd.read_excel(xls, 'PAR WF', usecols='G:I')
         # Alguns não têm peso?
@@ -138,6 +147,9 @@ class Dados:
         for i in self.P:
              porto = self.ordem.loc[i].values[0]
              self.ordem.loc[i, 'TO'] = self.TO[self.TO['I'] == porto]['TO'].values[0]
+
+        # USD - Valor de dólar considerado (para ajustar preço do combustível, assumindo que os outros custos já estão em reais)
+        self.USD = pd.read_excel(xls, 'PAR USD', usecols='A:C')
 
         # H - Deadweight
         self.H = pd.read_excel(xls, 'PAR H', usecols='E:G')
