@@ -169,7 +169,9 @@ class Dados:
         self.NT = pd.read_excel(xls, 'PAR NT', usecols='B').columns[0]
         
         # ND - Deadweight de carga
-        self.ND = pd.read_excel(xls, 'PAR ND', usecols='B').columns[0]
+        self.ND = pd.read_excel(xls, 'PAR ND', usecols='A:B')
+        vessel_nt = self.ND['NT'].iloc[(self.ND['NT'] - self.NT).abs().argsort()[:1]].values[0]
+        self.ND = self.ND[self.ND['NT'] == vessel_nt]['ND'].values[0]
         
         # NP - Capacidade máxima de plugs para contêineres refrigerados
         self.NP = pd.read_excel(xls, 'PAR NP', usecols='B').columns[0]
