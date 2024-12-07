@@ -101,6 +101,9 @@ class Dados:
         # CM - Custo do tipo de carga
         self.CM = pd.read_excel(xls, 'PAR CM', usecols='D:E')
 
+        # CV - Custo de afretamento por navio
+        self.CV = pd.read_excel(xls, 'PAR CV', usecols='A:B')
+
         # RF - Receita
         self.RF = pd.read_excel(xls, 'PAR RF', usecols='R:W')
 
