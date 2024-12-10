@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun May  12 22:49:20 2024
-
-@author: lucas
-"""
-
 #---------------------------------------------------------------------------------------------------------------------------------------#
 import pandas as pd
 import itertools
@@ -21,16 +14,22 @@ class Dados:
         # Connection with the spreadsheet
         xls = pd.ExcelFile(file_name)
 
+        # Obtém a rota
         self.Rota = pd.read_excel(xls, 'ROTA', usecols='A:B')
 
+        # Obtém a tabela 'DE-PARA' para os portos
         self.De_Para_Portos = pd.read_excel(xls, 'DE-PARA', usecols='A:B')
 
+        # Obtém a tabela 'DE-PARA' para os trechos
         self.De_Para_Trechos = pd.read_excel(xls, 'DE-PARA', usecols='D:E')
 
+        # Obtém a tabela 'DE-PARA' para os contêineres
         self.De_Para_K = pd.read_excel(xls, 'DE-PARA', usecols='G:H')
 
+        # Obtém a tabela 'DE-PARA' para os tipos de carga
         self.De_Para_C = pd.read_excel(xls, 'DE-PARA', usecols='J:K')
 
+        # Obtém a tabela 'DE-PARA' para os períodos de tempo
         self.De_Para_T = pd.read_excel(xls, 'DE-PARA', usecols='M:N')
 
         # Separa os dados em NB e SB
@@ -54,13 +53,13 @@ class Dados:
 
         # Definir conjuntos (como exemplo, defina os conjuntos de portos, tipos de contêineres, etc.)
         self.P = range(1, len(ordem) + 1) 
-        self.K = range(1, 5)   # Exemplo de 4 tipos de contêineres
+        self.K = range(1, 5)   # 4 tipos de contêineres
         self.K_Refrigerados = [2,4]
         self.K_Nao_Refrigerados = [1,3]
         self.K_40pes = [1, 2]
-        self.C = range(1, 3)   # Exemplo de 2 tipos de carga
-        self.T = range(1, 13)  # Exemplo de 12 períodos de tempo
-        self.DT = range(0, 4)  # Exemplo com deltas de 0 a 3
+        self.C = range(1, 3)   # 2 tipos de carga
+        self.T = range(1, 13)  # 12 meses
+        self.DT = range(0, 4)  # deltas de 0 a 3
 
         # DP - Distância entre os portos
         self.DP = pd.read_excel(xls, 'PAR DP', usecols='A:C')
@@ -77,7 +76,8 @@ class Dados:
         df[['Key']] = self.DF[['I','J','K','C','T']].apply(tuple, axis=1).to_frame()
         df[['Values']] = self.DF[['DF']]
         result_dict = dict(zip(df['Key'], df['Values']))
-        # Fill missing combinations with zeros
+        
+        # Completa os valores restantes com 0
         for combination in all_combinations:
             if combination not in result_dict:
                 result_dict[combination] = 0
@@ -163,7 +163,6 @@ class Dados:
         
         # VC - Viagem redonda?
         self.TC = pd.read_excel(xls, 'PAR VC', usecols='B').columns[0]
-        # O que significa 0,93 no parâmetro de viagem redonda? Achei que seria bool (0 ou 1)
         
         # NT - Capacidade do navio em TEUs
         self.NT = pd.read_excel(xls, 'PAR NT', usecols='B').columns[0]
@@ -194,6 +193,7 @@ class Dados:
         # Par N
         self.N = self.NV * self.NT / self.TC
 
+        # Define LF e LE como 1 para delta 0 e 0 para os demais deltas
         self.LF = {}
         self.LE = {}
 
@@ -204,4 +204,5 @@ class Dados:
                     self.LF[(j, k, delta)] = 1 if delta == 0 else 0
                     self.LE[(j, k, delta)] = 1 if delta == 0 else 0
         
+        # Fecha a conexão com a planilha
         xls.close()
