@@ -153,9 +153,13 @@ def export_results(dados, vars, cenario, descricao_cenario, output_path):
         df_custo_MDO.loc[t, 'Custo MDO'] = consumo_total * dados.FUEL[dados.FUEL['Combustível'] == 'MDO']['Preço'].values[0] * dados.USD['Valor'].values[0]
 
     custo_intermodal = pd.Series(0, index=dados.T)
-    frete_rodoviario_por_km = 5.67 # em reais, mas levar pra planilha de dados
-    custo_carga_descarga = 496.50
-    fator_extra_intermodal = 0.3
+    # frete_rodoviario_por_km = 5.67 # em reais, mas levar pra planilha de dados
+    # custo_carga_descarga = 496.50
+    # fator_extra_intermodal = 0.3
+
+    frete_rodoviario_por_km = dados.CI['Valor'].values[0]
+    custo_carga_descarga = dados.CI['Valor'].values[1]
+    fator_extra_intermodal = dados.CI['Valor'].values[2]
 
     for i in df_FF_port.index.levels[0]:
         for j in df_FF_port.index.levels[1]:

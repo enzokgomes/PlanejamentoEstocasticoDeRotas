@@ -5,6 +5,11 @@ def preprocess_data(dados, scenario):
     dados.FUEL.loc[dados.FUEL['Combustível'] == 'VLSFO', 'Preço'] *= (1 + scenario.oil_price_variation)
     dados.FUEL.loc[dados.FUEL['Combustível'] == 'VLSFO', 'Preço'] = dados.FUEL.loc[dados.FUEL['Combustível'] == 'VLSFO', 'Preço'].round(2)
 
+    dados.CSC['CSC'] *= (1 + scenario.port_call_price_variation)
+    dados.CSC['CSC'] = dados.CSC['CSC'].round(0)
+
+    dados.CI.iloc[0,1] *= (1+ scenario.intermodal_price_variation)
+
     # Definição de parâmetros-chave
     dados.NT = scenario.nt
     dados.PX['PX'] = scenario.px

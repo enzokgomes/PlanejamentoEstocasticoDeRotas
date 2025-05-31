@@ -43,7 +43,7 @@ class Dados:
         ordem = self.NB + self.SB
 
         # Indexação dos portos
-        self.ordem = pd.DataFrame(0, index=[i + 1 for i in range(len(ordem))], columns=['IdPorto', 'DP', 'TO'])
+        self.ordem = pd.DataFrame(0.0, index=[i + 1 for i in range(len(ordem))], columns=['IdPorto', 'DP', 'TO'])
 
         for i in range(len(ordem)):
             self.ordem.loc[i + 1, 'IdPorto'] = ordem[i]
@@ -92,7 +92,7 @@ class Dados:
         # CS - Custo de estoque
         self.CS = pd.read_excel(xls, 'PAR CS', usecols='D:E')
 
-        # CSC - Custo de escala (falta implementar)
+        # CSC - Custo de escala
         self.CSC = pd.read_excel(xls, 'PAR CSC', usecols='A:C')
 
         # CR - Custo de reparo
@@ -118,6 +118,9 @@ class Dados:
 
         # DC - Distância entre porto e capital
         self.DC = pd.read_excel(xls, 'PAR DEPOTS', usecols='A:B') # Alterar nome da aba para DC
+
+        # CI - Dados do Frete / Custo Intermodal
+        self.CI = pd.read_excel(xls, 'PAR INTERMODAL', usecols='A:C')
 
         # WF - Peso do contêiner cheio
         self.WF = pd.read_excel(xls, 'PAR WF', usecols='G:I')

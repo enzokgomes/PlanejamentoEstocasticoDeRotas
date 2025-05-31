@@ -1,7 +1,6 @@
 from gurobipy import Model
 from Services.read_data import Dados
 from Services.model_builder import data_processing, variable_setup, constraints, objective
-from config import PX_DEFAULT, NT_DEFAULT, VARIACAO_CAMBIO, VARIACAO_BARRIL_PETROLEO
 from Services import exporter
 from Services.exporter import export_results
 from Classes.Scenario import Scenario
@@ -41,10 +40,10 @@ def run_model(scenario: Scenario, descricao_cenario, file_name, output_path):
 
     return model, dados, vars
 
-cenario = 'CEN01'
-descricao_cenario = 'Cenário 01'
+# cenario = 'CEN01'
+# descricao_cenario = 'Cenário 01'
 
-# Inicialização da classe Dados
-file_name = f'Input\Modelo {cenario}.xlsx'
-output_path = f'Output/{cenario}.xlsx'
-run_model(scenario=cenario, descricao_cenario=descricao_cenario, file_name=file_name, output_path=output_path)
+# # Inicialização da classe Dados
+# file_name = f'Input/Modelo {cenario}.xlsx'
+# output_path = f'Output/{cenario}.xlsx'
+# run_model(scenario=cenario, descricao_cenario=descricao_cenario, file_name=file_name, output_path=output_path)
