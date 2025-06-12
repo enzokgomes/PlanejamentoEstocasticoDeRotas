@@ -367,3 +367,4 @@ __pycache__/
 
 # Pastas Ignorada
 Output/
+.Output/
