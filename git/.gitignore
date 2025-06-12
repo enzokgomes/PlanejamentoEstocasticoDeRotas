@@ -364,3 +364,6 @@ FodyWeavers.xsd
 
 #__pycache__
 __pycache__/
+
+# Pastas Ignorada
+Output/
