@@ -83,6 +83,9 @@ class Dados:
                 result_dict[combination] = 0
         self.DF = result_dict
 
+        # Botar na Planilha
+        self.demanda_total = 681000
+
         # CF - Custo de mover contêiner cheio
         self.CF = pd.read_excel(xls, 'PAR CF', usecols='H:K')
 

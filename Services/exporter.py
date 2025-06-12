@@ -442,7 +442,7 @@ def export_results(dados, vars, cenario, descricao_cenario, output_path):
     df_RLE = aplicar_de_para(df_RLE, dados.De_Para_Portos, ['j'])
     df_RLE = aplicar_de_para(df_RLE, dados.De_Para_K, ['k'])
 
-    demanda_total = 681000
+    demanda_total = dados.demanda_total
     sum_ff = sum(FF[i, j, k, c, t].x for i in dados.P for j in dados.P for k in dados.K for c in dados.C for t in dados.T)
 
     print(f"Demanda total: {demanda_total}")

@@ -16,3 +16,11 @@ def preprocess_data(dados, scenario):
     dados.ND = 22400 if dados.NT == 2000 else 39200
     dados.H['H'] = dados.ND
     dados.N = dados.NV * dados.NT / dados.TC
+
+    # Atualizando a variação demanda
+    dados.DF.update((x , y*(1+scenario.demand_variation))for x, y in dados.DF.items())
+    dados.demanda_total *= (1+scenario.demand_variation)
+
+    # Atualizando a variação no frete
+    dados.RF['RF'] *= (1 + scenario.freight_variation)
+

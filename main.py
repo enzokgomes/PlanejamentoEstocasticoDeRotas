@@ -8,35 +8,13 @@ if os.getcwd() != current_folder_path:
     os.chdir(current_folder_path)
 
 scenarios = [
-    Scenario(px=.4, nt=2000, exchange_rate_variation=0, oil_price_variation=0, 
-             port_call_price_variation=0.1, intermodal_price_variation=0),
+    Scenario(px=.35, nt=2000, exchange_rate_variation=0, oil_price_variation=0, 
+             port_call_price_variation=0, intermodal_price_variation=0,
+             demand_variation=500, freight_variation=0),
 
-    Scenario(px=.4, nt=2000, exchange_rate_variation=0, oil_price_variation=0, 
-             port_call_price_variation=0, intermodal_price_variation=0.1),
-
-    Scenario(px=.4, nt=2000, exchange_rate_variation=0, oil_price_variation=0, 
-             port_call_price_variation=-0.1, intermodal_price_variation=0),
-
-    Scenario(px=.4, nt=2000, exchange_rate_variation=0, oil_price_variation=0, 
-             port_call_price_variation=0, intermodal_price_variation=-0.1),
-
-    Scenario(px=.35, nt=2000, exchange_rate_variation=0, oil_price_variation=0,
-             port_call_price_variation=0, intermodal_price_variation=0),
-
-    Scenario(px=.45, nt=2000, exchange_rate_variation=0, oil_price_variation=0,
-             port_call_price_variation=0, intermodal_price_variation=0), # 0.5 px é 19.24% de mkt share
-
-    Scenario(px=.40, nt=2500, exchange_rate_variation=0, oil_price_variation=0,
-             port_call_price_variation=0, intermodal_price_variation=0),
-
-    Scenario(px=.40, nt=3000, exchange_rate_variation=0, oil_price_variation=0,
-             port_call_price_variation=0, intermodal_price_variation=0), # 0.4 px é 15.37% -> confirmar valores
-
-    Scenario(px=.35, nt=3500, exchange_rate_variation=0, oil_price_variation=0,
-             port_call_price_variation=0, intermodal_price_variation=0),
-
-    Scenario(px=.45, nt=3500, exchange_rate_variation=0, oil_price_variation=0,
-             port_call_price_variation=0, intermodal_price_variation=0),
+    Scenario(px=.35, nt=2000, exchange_rate_variation=0, oil_price_variation=0, 
+             port_call_price_variation=0, intermodal_price_variation=0,
+             demand_variation=550, freight_variation=0),
 
 ]
 
