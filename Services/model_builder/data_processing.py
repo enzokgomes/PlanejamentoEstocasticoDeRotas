@@ -22,5 +22,11 @@ def preprocess_data(dados, scenario):
     dados.demanda_total *= (1+scenario.demand_variation)
 
     # Atualizando a variação no frete
+    # dados.RF.loc[dados.RF['C'] == 1] *= (1 + scenario.freight_variation)
     dados.RF['RF'] *= (1 + scenario.freight_variation)
+
+    # Atualizando dados de Slot Cost
+    dados.RF.loc[(dados.RF['C'] == 2) & (dados.RF['K'].isin(dados.K_40pes))] = dados.slot_cost * (1 + 0.25) * 2
+    dados.RF.loc[(dados.RF['C'] == 2) & ~(dados.RF['K'].isin(dados.K_40pes))] = dados.slot_cost * (1 + 0.25) * 1
+    print(f"Slot Cost: R$ {dados.slot_cost:.2f}")
 

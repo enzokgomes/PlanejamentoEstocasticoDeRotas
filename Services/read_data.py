@@ -84,7 +84,7 @@ class Dados:
         self.DF = result_dict
 
         # Botar na Planilha
-        self.demanda_total = 681000
+        self.demanda_total = 681000 # XXXXXXXXXXXXXXXX
 
         # CF - Custo de mover contêiner cheio
         self.CF = pd.read_excel(xls, 'PAR CF', usecols='H:K')
@@ -209,6 +209,33 @@ class Dados:
                     # Create a variable with the current index (J, K, Delta)
                     self.LF[(j, k, delta)] = 1 if delta == 0 else 0
                     self.LE[(j, k, delta)] = 1 if delta == 0 else 0
+
+        # Cálculo do Slot Cost
+        distancia_viagem = self.ordem['DP'].sum()
+
+        # Custo VLSFO geral ou por trecho?   
+        vs = 14 * 0.5144 * 3.6
+        tempo_viagem = distancia_viagem / vs
+        custo_VLSFO = (0.006754*vs**3 +37.23) * tempo_viagem \
+            * self.FUEL[self.FUEL['Combustível'] == 'VLSFO']['Preço'].values[0] * self.USD['Valor'].values[0] * self.NV
+            
+        consumo_MDO_viagem = self.MC[self.MC['MDO Consumption'] == 'Sea']['t/day'].values[0]
+        consumo_MDO_porto = self.MC[self.MC['MDO Consumption'] == 'Port']['t/day'].values[0]
+        
+        consumo_MDO_total = ((28 - tempo_viagem) * consumo_MDO_porto + tempo_viagem * consumo_MDO_viagem) * self.NV
+
+        # Custo Afretamento
+        custo_diario_afretamento = self.CV[self.CV['NT'] == vessel_nt]['CV'].values[0] * self.USD['Valor'].values[0] * self.NV
+        custo_afretamento = custo_diario_afretamento * 28
+
+        # Custo Escala
+        CSC_ports = self.NB[:-1] + self.SB[:-1]
+        custo_escala = 0
+        for port in CSC_ports:
+            custo_escala += self.CSC[(self.CSC['I'] == port) & (self.CSC['NT'] == vessel_nt)]['CSC'].values[0]
+        custo_escala *= self.NV
+
+        self.slot_cost = (custo_VLSFO + consumo_MDO_total + custo_afretamento + custo_escala) / (self.NV * self.NT)
         
         # Fecha a conexão com a planilha
         xls.close()

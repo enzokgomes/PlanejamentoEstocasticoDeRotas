@@ -128,8 +128,7 @@ def export_results(dados, vars, cenario, descricao_cenario, output_path):
     CSC *= dados.NV
 
     custo_diario_afretamento = dados.CV[dados.CV['NT'] == vessel_nt]['CV'].values[0] * dados.USD['Valor'].values[0] * dados.NV
-    custo_mensal_afretamento = custo_diario_afretamento * 31
-    custo_anual_afretamento = custo_diario_afretamento * 12
+    custo_afretamento = custo_diario_afretamento * 28
 
     # Cria o dataframe de custo VLSFO para cada período
     df_custo_VLSFO = pd.DataFrame(columns=['Custo VLSFO'], index=dados.T)
@@ -179,7 +178,7 @@ def export_results(dados, vars, cenario, descricao_cenario, output_path):
     for t in dados.T:
         df_custo_intermodal.loc[t, 'Custo intermodal'] = custo_intermodal[t]
 
-    # Cria um dataframe para gerar o proforma da rota de cabotagem para o 1º período
+    # Cria um dataframe para gerar o proforma da rota de cabotagem para o 6º período
     t = 6
     vs = df_vs_tempos.loc[t, 'VS']
 
@@ -382,7 +381,7 @@ def export_results(dados, vars, cenario, descricao_cenario, output_path):
     ]
 
     #Custo de afretamento
-    df_fluxo_caixa['Custo de afretamento'] = custo_mensal_afretamento
+    df_fluxo_caixa['Custo de afretamento'] = custo_afretamento
 
     # Custo total
     df_fluxo_caixa['Custo'] = df_fluxo_caixa['Custo de movimentação de cheios'] + df_fluxo_caixa['Custo de movimentação de vazios'] + df_fluxo_caixa['Custo de estoque'] + df_fluxo_caixa['Custo do tipo de carga'] + df_fluxo_caixa['Custo de escala csc'] + df_fluxo_caixa['Custo de intermodal'] + df_fluxo_caixa['Custo de VLSFO'] + df_fluxo_caixa['Custo de MDO'] + df_fluxo_caixa['Custo de afretamento']

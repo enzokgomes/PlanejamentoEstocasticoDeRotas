@@ -8,7 +8,7 @@ if os.getcwd() != current_folder_path:
     os.chdir(current_folder_path)
 
 px = [.35]
-nt = [2000, 2500, 3000, 3500]
+nt = [3500]
 exchange_rate_variation = [0]
 oil_price_variation = [0]
 port_call_price_variation = [0]
@@ -17,7 +17,8 @@ intermodal_price_variation = [0]
 num_years = 10
 demand_variation_rate = .1
 
-demand_variation = [(1 + demand_variation_rate) ** year - 1 for year in range(num_years)]
+demand_variation = [0]
+# demand_variation = [(1 + demand_variation_rate) ** year - 1 for year in range(num_years)]
 
 freight_variation = [0]
 
