@@ -17,13 +17,7 @@ def set_objective(model, dados, vars):
                     (dados.RF['T'] == t), 
                     'RF'
                 ) * FF_port[i, j, k, c, t] -
-                get_value(
-                    dados.CF, 
-                    (dados.CF['I'] == i) & 
-                    (dados.CF['J'] == j) & 
-                    (dados.CF['K'] == k), 
-                    'CF'
-                ) * FF_port[i, j, k, c, t] -
+
                 get_value(
                     dados.CM, 
                     (dados.CM['C'] == c), 
@@ -31,6 +25,18 @@ def set_objective(model, dados, vars):
                 ) * FF_port[i, j, k, c, t]
             )
             for i in dados.port_nums for j in dados.port_nums for k in dados.K for c in dados.C for t in dados.T
+        ) +
+        quicksum(
+            (
+                get_value(
+                    dados.CF, 
+                    (dados.CF['I'] == i) & 
+                    (dados.CF['J'] == j) & 
+                    (dados.CF['K'] == k), 
+                    'CF'
+                ) * FF_port[i, j, k, c, t]
+            )
+            for i in dados.port_nums for j in dados.port_nums for k in dados.K for c in dados.C_not_feeder for t in dados.T
         ) -
         quicksum(
             get_value(

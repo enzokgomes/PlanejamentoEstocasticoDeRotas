@@ -237,7 +237,7 @@ class Dados:
             custo_escala += self.CSC[(self.CSC['I'] == port) & (self.CSC['NT'] == vessel_nt)]['CSC'].values[0]
         custo_escala *= self.NV
 
-        self.slot_cost = (custo_VLSFO + consumo_MDO_total + custo_afretamento + custo_escala) / (self.NV * self.NT)
+        self.slot_cost = (custo_VLSFO + consumo_MDO_total + custo_afretamento + custo_escala) / (self.NV * self.NT * 0.85 * (len(ordem) - 2))
         
         # Fecha a conexão com a planilha
         xls.close()

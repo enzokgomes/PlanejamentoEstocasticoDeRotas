@@ -243,7 +243,7 @@ def export_results(dados, vars, cenario, descricao_cenario, output_path):
         df_proforma.loc[p, 'Receita'] = receita_frete
 
         # Custos de movimentação de contêineres no trecho (validado)
-        custo_embarque_cheios = sum(FF[p, j, k, c, t].x * dados.CF[(dados.CF['I'] == i_porto) & (dados.CF['J'] == dados.ordem.loc[j].values[0]) & (dados.CF['K'] == k)]['CF'].values[0] for j in dados.P for k in dados.K for c in dados.C) / dados.NV
+        custo_embarque_cheios = sum(FF[p, j, k, c, t].x * dados.CF[(dados.CF['I'] == i_porto) & (dados.CF['J'] == dados.ordem.loc[j].values[0]) & (dados.CF['K'] == k)]['CF'].values[0] for j in dados.P for k in dados.K for c in dados.C_not_feeder) / dados.NV
         
         df_proforma.loc[p, 'Custo de movimentação de cheios'] = custo_embarque_cheios
 
@@ -310,7 +310,7 @@ def export_results(dados, vars, cenario, descricao_cenario, output_path):
                 (dados.CF['K'] == k), 
                 'CF'
             ) * FF_port[i, j, k, c, t].x
-            for i in dados.port_nums for j in dados.port_nums for k in dados.K for c in dados.C
+            for i in dados.port_nums for j in dados.port_nums for k in dados.K for c in dados.C_not_feeder
         )
         for t in dados.T
     ]

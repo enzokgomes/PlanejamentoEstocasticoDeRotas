@@ -26,8 +26,8 @@ def preprocess_data(dados, scenario):
     dados.RF['RF'] *= (1 + scenario.freight_variation)
 
     # Atualizando dados de Slot Cost
-    feeder_margin = 0.35
-    dados.RF.loc[(dados.RF['C'].isin(dados.C_feeder)) & (dados.RF['K'].isin(dados.K_40pes))] = dados.slot_cost * (1 + feeder_margin) * 2
-    dados.RF.loc[(dados.RF['C'].isin(dados.C_feeder)) & ~(dados.RF['K'].isin(dados.K_40pes))] = dados.slot_cost * (1 + feeder_margin) * 1
+    feeder_margin = 0.25
+    dados.RF.loc[(dados.RF['C'].isin(dados.C_feeder)) & (dados.RF['K'].isin(dados.K_40pes)), 'RF'] = dados.slot_cost * (1 + feeder_margin) * 2
+    dados.RF.loc[(dados.RF['C'].isin(dados.C_feeder)) & ~(dados.RF['K'].isin(dados.K_40pes)), 'RF'] = dados.slot_cost * (1 + feeder_margin) * 1
     print(f"Slot Cost: R$ {dados.slot_cost:.2f}")
 
