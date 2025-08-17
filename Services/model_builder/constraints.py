@@ -178,7 +178,7 @@ def enforce_returned_containers_quantity(model, vars, dados):
                     RSF[j, k, t] == quicksum(
                         dados.TR(t_, delta, t) * FF_port[i, j, k, c, t_] * dados.SF[(dados.SF['I'] == j) & (dados.SF['K'] == k) & (dados.SF['DT'] == delta)]['SF'].values[0]
                         for i in dados.port_nums
-                        for c in dados.C if c not in dados.feeder
+                        for c in dados.C_not_feeder
                         for delta in dados.DT
                         for t_ in dados.T
                     ),
@@ -200,7 +200,7 @@ def enforce_returned_containers_quantity(model, vars, dados):
                         dados.TR(t_, delta, t) * dados.LF[(j, k, delta)] * FF_port[i_, j_, k, c, t_]
                         for i_ in dados.port_nums if i_ == j
                         for j_ in dados.port_nums
-                        for c in dados.C if c not in dados.feeder
+                        for c in dados.C_not_feeder
                         for delta in dados.DT
                         for t_ in dados.T
                     ),
@@ -403,7 +403,7 @@ def enforce_fleet_capacity_limit(model, vars, dados):
     count_constr = 0
     for k in dados.K:
         for t in dados.T:
-            part1 = quicksum(FF[i, j, k, c, t] for i in dados.P for j in dados.P for c in dados.C if c not in dados.feeder)
+            part1 = quicksum(FF[i, j, k, c, t] for i in dados.P for j in dados.P for c in dados.C_not_feeder)
             part2 = quicksum(FE[i, j, k, t] for i in dados.P for j in dados.P)
             part3 = quicksum(E[j, k, t] for j in dados.port_nums)
             
@@ -412,7 +412,7 @@ def enforce_fleet_capacity_limit(model, vars, dados):
                 dados.TR(t_, delta, t) * FE[i, j, k, t_] * dados.SE[(dados.SE['K'] == k) & (dados.SE['DT'] == delta)]['SE'].values[0]
                 for i in dados.P 
                 for j in dados.P 
-                for c in dados.C if c not in dados.feeder
+                for c in dados.C_not_feeder
                 for delta in dados.DT 
                 for t_ in dados.T
                 if delta > 1 and dados.TR(t_, delta, t) == 1
@@ -424,7 +424,7 @@ def enforce_fleet_capacity_limit(model, vars, dados):
                 for i in dados.port_nums
                 for j in dados.port_nums 
                 for j1 in dados.port_nums
-                for c in dados.C if c not in dados.feeder
+                for c in dados.C_not_feeder
                 for delta in dados.DT 
                 for t_ in dados.T
                 if delta > 1 and dados.TR(t_, delta, t) == 1 and j1 == i

@@ -168,7 +168,7 @@ def export_results(dados, vars, cenario, descricao_cenario, output_path):
                 # Dist deve ser dist porto - capital...
                 dist = (dados.DC[dados.DC['Porto'] == i]['Distância Capital'].values[0] + dados.DC[dados.DC['Porto'] == j]['Distância Capital'].values[0] * 2)
                 custo_unitario = (dist * frete_rodoviario_por_km + custo_carga_descarga) * (1 + fator_extra_intermodal)
-                demanda = df_FF_port.loc[i, j, slice(None), slice(None)].sum()
+                demanda = df_FF_port.loc[i, j, slice(None), dados.C_not_feeder].sum()
                 custo_total = demanda * custo_unitario
                 custo_intermodal += custo_total
 
@@ -272,7 +272,7 @@ def export_results(dados, vars, cenario, descricao_cenario, output_path):
             else:
                 dist = (dados.DC[dados.DC['Porto'] == i_porto]['Distância Capital'].values[0] + dados.DC[dados.DC['Porto'] == dados.ordem.loc[j].values[0]]['Distância Capital'].values[0] * 2)
                 custo_unitario = (dist * frete_rodoviario_por_km + custo_carga_descarga) * (1 + fator_extra_intermodal)
-                demanda = sum(FF[p, j, k, c, t].x for k in dados.K for c in dados.C) / dados.NV
+                demanda = sum(FF[p, j, k, c, t].x for k in dados.K for c in dados.C_not_feeder) / dados.NV
                 custo_total = demanda * custo_unitario
                 custo_intermodal_trecho += custo_total
 

@@ -58,8 +58,8 @@ class Dados:
         self.K_Nao_Refrigerados = [1,3]
         self.K_40pes = [1, 2]
         self.C = range(1, 3)   # 2 tipos de carga [1, 2]
-        self.not_feeder = [1]
-        self.feeder = [2]
+        self.C_feeder = [2]
+        self.C_not_feeder = [c for c in self.C if c not in self.C_feeder]
         self.T = range(1, 13)  # 12 meses
         self.DT = range(0, 4)  # deltas de 0 a 3
 
