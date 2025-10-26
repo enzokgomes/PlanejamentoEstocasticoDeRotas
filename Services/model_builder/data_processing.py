@@ -31,3 +31,5 @@ def preprocess_data(dados, scenario):
     dados.RF.loc[(dados.RF['C'].isin(dados.C_feeder)) & ~(dados.RF['K'].isin(dados.K_40pes)), 'RF'] = dados.slot_cost * (1 + feeder_margin) * 1
     print(f"Slot Cost: R$ {dados.slot_cost:.2f}")
 
+    # Atualizando dados de FEEDER
+

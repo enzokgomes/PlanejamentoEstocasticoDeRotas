@@ -2,6 +2,8 @@
 import pandas as pd
 import itertools
 import Services.matriz_precedencia as mp
+from openpyxl import load_workbook
+import math
 #---------------------------------------------------------------------------------------------------------------------------------------#
 def rotate(l, n):
             return l[n:] + l[:n]
@@ -71,8 +73,31 @@ class Dados:
             chegada = self.ordem.loc[i+1].values[0]
             self.ordem.loc[i, 'DP'] = self.DP[(self.DP['I'] == saida) & (self.DP['J'] == chegada)]['DP'].values[0]
 
+        # FEEDER - % de carga feeder por origem e destino
+        # FEEDER é o C tipo 2
+        self.FEEDER = pd.read_excel(xls, 'PAR FEEDER', usecols='A:C')
+
         # DF - Demanda
-        self.DF = pd.read_excel(xls, 'PAR DF', usecols='R:W')
+        self.DF = pd.read_excel(xls, 'PAR DF', usecols='R:V')
+
+        df_expanded = pd.DataFrame(columns=['I', 'J', 'K', 'C', 'T', 'DF'])
+        for index, row in self.DF.iterrows():
+            i = row['I']
+            j = row['J']
+            k = row['K']
+            t = row['T']
+            demanda_total = row['DF']
+            percent_feeder = self.FEEDER[(self.FEEDER['I'] == i) & (self.FEEDER['J'] == j)]['PERCENT_FEEDER'].values
+            if len(percent_feeder) > 0:
+                percent_feeder = percent_feeder[0]
+            else:
+                percent_feeder = 0
+            demanda_feeder = round(demanda_total * percent_feeder)
+            demanda_not_feeder = round(demanda_total * (1 - percent_feeder))
+            df_expanded = pd.concat([df_expanded, pd.DataFrame({'I': [i], 'J': [j], 'K': [k], 'C': [2], 'T': [t], 'DF': [demanda_feeder]})], ignore_index=True)
+            df_expanded = pd.concat([df_expanded, pd.DataFrame({'I': [i], 'J': [j], 'K': [k], 'C': [1], 'T': [t], 'DF': [demanda_not_feeder]})], ignore_index=True)
+        self.DF = df_expanded
+
         all_combinations = list(itertools.product(self.port_nums, self.port_nums, self.K, self.C, self.T))
         df = pd.DataFrame()
         df[['Key']] = self.DF[['I','J','K','C','T']].apply(tuple, axis=1).to_frame()
@@ -84,7 +109,7 @@ class Dados:
             if combination not in result_dict:
                 result_dict[combination] = 0
         self.DF = result_dict
-
+        
         # Botar na Planilha
         self.demanda_total = 681000 # XXXXXXXXXXXXXXXX
 
@@ -163,8 +188,7 @@ class Dados:
         self.USD = pd.read_excel(xls, 'PAR USD', usecols='A:C')
 
         # H - Deadweight
-        self.H = pd.read_excel(xls, 'PAR H', usecols='E:G')
-        # O que é NB vs SB?
+        self.H = pd.read_excel(xls, 'PAR H', usecols='F:G')
 
         # NV - Número de navios alocados na rota 
         self.NV = pd.read_excel(xls, 'PAR NV', usecols='B').columns[0]
