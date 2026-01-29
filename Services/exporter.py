@@ -156,9 +156,13 @@ def export_results(dados, vars, cenario, descricao_cenario, output_path):
     # custo_carga_descarga = 496.50
     # fator_extra_intermodal = 0.3
 
-    frete_rodoviario_por_km = dados.CI['Valor'].values[0]
-    custo_carga_descarga = dados.CI['Valor'].values[1]
-    fator_extra_intermodal = dados.CI['Valor'].values[2]
+    frete_rodoviario_por_km_DRY = dados.CI.loc['Cost Coefficient', 'DRY'].values[0]
+    frete_rodoviario_por_km_REEFER = dados.CI.loc['Cost Coefficient', 'REEFER'].values[0]
+    custo_carga_descarga_DRY = dados.CI.loc['Load/Discharge Cost ', 'DRY'].values[0]
+    custo_carga_descarga_REEFER = dados.CI.loc['Load/Discharge Cost ', 'REEFER'].values[0]
+    fator_extra_intermodal_DRY = dados.CI.loc['Fator Extra Intermodal', 'DRY'].values[0]
+    fator_extra_intermodal_REEFER = dados.CI.loc['Fator Extra Intermodal', 'REEFER'].values[0]
+
 
     for i in df_FF_port.index.levels[0]:
         for j in df_FF_port.index.levels[1]:
@@ -167,9 +171,15 @@ def export_results(dados, vars, cenario, descricao_cenario, output_path):
             else:
                 # Dist deve ser dist porto - capital...
                 dist = (dados.DC[dados.DC['Porto'] == i]['Distância Capital'].values[0] + dados.DC[dados.DC['Porto'] == j]['Distância Capital'].values[0] * 2)
-                custo_unitario = (dist * frete_rodoviario_por_km + custo_carga_descarga) * (1 + fator_extra_intermodal)
-                demanda = df_FF_port.loc[i, j, slice(None), dados.C_not_feeder].sum()
-                custo_total = demanda * custo_unitario
+                
+                custo_unitario_DRY = (dist * frete_rodoviario_por_km_DRY + custo_carga_descarga_DRY) * (1 + fator_extra_intermodal_DRY)
+                custo_unitario_REEFER = (dist * frete_rodoviario_por_km_REEFER + custo_carga_descarga_REEFER) * (1 + fator_extra_intermodal_REEFER)
+
+                demanda_DRY = df_FF_port.loc[i, j, dados.K_Nao_Refrigerados, dados.C_not_feeder].sum()
+                demanda_REEFER = df_FF_port.loc[i, j, dados.K_Refrigerados, dados.C_not_feeder].sum()
+
+                custo_total = demanda_DRY * custo_unitario_DRY + demanda_REEFER * custo_unitario_REEFER
+                
                 custo_intermodal += custo_total
 
     # Cria o dataframe de custo de intermodal para cada período

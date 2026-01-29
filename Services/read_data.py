@@ -111,7 +111,7 @@ class Dados:
         self.DF = result_dict
         
         # Botar na Planilha
-        self.demanda_total = 681000 # XXXXXXXXXXXXXXXX
+        self.demanda_total = 842115 # XXXXXXXXXXXXXXXX
 
         # CF - Custo de mover contêiner cheio
         self.CF = pd.read_excel(xls, 'PAR CF', usecols='H:K')
