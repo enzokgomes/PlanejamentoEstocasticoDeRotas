@@ -71,7 +71,7 @@ class Dados:
         for i in self.P[:-1]:
             saida = self.ordem.loc[i].values[0]
             chegada = self.ordem.loc[i+1].values[0]
-            self.ordem.loc[i, 'DP'] = self.DP[(self.DP['I'] == saida) & (self.DP['J'] == chegada)]['DP'].values[0]
+            self.ordem.loc[i, 'DP'] = self._get_dp(saida, chegada)
 
         # FEEDER - % de carga feeder por origem e destino
         # FEEDER é o C tipo 2
@@ -134,8 +134,43 @@ class Dados:
         # CV - Custo de afretamento por navio
         self.CV = pd.read_excel(xls, 'PAR CV', usecols='A:B')
 
-        # RF - Receita
-        self.RF = pd.read_excel(xls, 'PAR RF', usecols='R:W')
+        # CI - Dados do Frete / Custo Intermodal (nova estrutura: PARAMETER, DRY, REFFER, UNIT)
+        self.CI = pd.read_excel(xls, 'PAR INTERMODAL', usecols='A:D')
+        # Índice por nome do parâmetro; normalizar margem para decimal
+        first_col = self.CI.columns[0]
+        self.CI = self.CI.set_index(first_col)
+        self.CI.index = self.CI.index.astype(str).str.strip()
+        # Coluna REEFER pode vir como REFFER no Excel
+        self.CI.columns = [str(c).strip().replace('REFFER', 'REEFER') for c in self.CI.columns]
+        for idx in self.CI.index:
+            if 'margin' in idx.lower():
+                for col in ['DRY', 'REEFER']:
+                    if col in self.CI.columns:
+                        v = self.CI.loc[idx, col]
+                        if isinstance(v, (int, float)) and v > 1:
+                            self.CI.loc[idx, col] = v / 100.0
+                break
+
+        # PAR MAO-VLC (custo balsa Manaus-Belém e margem)
+        self.custo_balsa_mao_vlc = 0.0
+        self.margem_mao_vlc = 0.0
+        if 'PAR MAO-VLC' in xls.sheet_names:
+            mao_vlc = pd.read_excel(xls, 'PAR MAO-VLC')
+            mao_vlc.columns = [str(c).strip() for c in mao_vlc.columns]
+            item_col = next((c for c in mao_vlc.columns if 'item' in c.lower() or c == 'Item'), None)
+            valor_col = next((c for c in mao_vlc.columns if 'valor' in c.lower() or c == 'Valor'), None)
+            if item_col and valor_col:
+                for _, row in mao_vlc.iterrows():
+                    item = str(row[item_col]).strip().lower()
+                    val = row[valor_col]
+                    if 'balsa' in item or 'manaus' in item:
+                        self.custo_balsa_mao_vlc = float(val) if pd.notna(val) else 0.0
+                    elif 'margem' in item:
+                        v = float(val) if pd.notna(val) else 0.0
+                        self.margem_mao_vlc = v / 100.0 if v > 1 else v
+
+        # RF - Receita (calculada a partir de PAR INTERMODAL e PAR MAO-VLC)
+        self._compute_rf()
 
         # E0 - Estoque inicial
         self.E0 = pd.read_excel(xls, 'PAR E0', usecols='G:I')
@@ -148,9 +183,6 @@ class Dados:
 
         # DC - Distância entre porto e capital
         self.DC = pd.read_excel(xls, 'PAR DEPOTS', usecols='A:B') # Alterar nome da aba para DC
-
-        # CI - Dados do Frete / Custo Intermodal
-        self.CI = pd.read_excel(xls, 'PAR INTERMODAL', usecols='A:C')
 
         # WF - Peso do contêiner cheio
         self.WF = pd.read_excel(xls, 'PAR WF', usecols='G:I')
@@ -265,3 +297,88 @@ class Dados:
         
         # Fecha a conexão com a planilha
         xls.close()
+
+    def _get_dp(self, port_i, port_j):
+        """Distância entre portos (códigos). Busca em self.DP ou soma trechos ao longo da rota."""
+        if port_i == port_j:
+            return 0.0
+        lookup = self.DP[(self.DP['I'] == port_i) & (self.DP['J'] == port_j)]
+        if not lookup.empty:
+            return float(lookup['DP'].values[0])
+        lookup = self.DP[(self.DP['I'] == port_j) & (self.DP['J'] == port_i)]
+        if not lookup.empty:
+            return float(lookup['DP'].values[0])
+        # Distância ao longo da rota
+        port_to_pos = {self.ordem.loc[p, 'IdPorto']: p for p in self.P}
+        if port_i not in port_to_pos or port_j not in port_to_pos:
+            return 0.0
+        p_i, p_j = port_to_pos[port_i], port_to_pos[port_j]
+        lo, hi = min(p_i, p_j), max(p_i, p_j)
+        return float(self.ordem.loc[lo:hi - 1, 'DP'].sum())
+
+    def _get_ci_param(self, param_key, cargo_type):
+        """Obtém parâmetro do PAR INTERMODAL (param_key pode ser parcial, cargo_type = 'DRY' ou 'REEFER')."""
+        col = cargo_type if cargo_type in self.CI.columns else None
+        if col is None:
+            return None
+        for idx in self.CI.index:
+            if param_key.lower() in str(idx).lower():
+                v = self.CI.loc[idx, col]
+                if pd.notna(v):
+                    return float(v)
+        return None
+
+    def _compute_rf(self):
+        """Calcula self.RF a partir do intermodal."""
+        # Parâmetros por tipo de carga (nomes flexíveis no Excel)
+        def get_coef(ctype):
+            v = self._get_ci_param('Cost Coefficient', ctype)
+            return float(v) if v is not None else 0.0
+        def get_load(ctype):
+            v = self._get_ci_param('Load/Discharge', ctype)
+            return float(v) if v is not None else 0.0
+        def get_margin(ctype):
+            v = self._get_ci_param('Margin', ctype)
+            if v is None:
+                return 0.15
+            return float(v) if v <= 1 else v / 100.0
+
+        custo_manaus_belem = self.custo_balsa_mao_vlc / (1 - self.margem_mao_vlc) if self.margem_mao_vlc < 1 else self.custo_balsa_mao_vlc
+        apply_mao = len(self.P) >= 10
+        MAO = self.ordem.loc[1, 'IdPorto'] if apply_mao else None
+        VLC = self.ordem.loc[10, 'IdPorto'] if apply_mao else None
+
+        rows = []
+        for i in self.port_nums:
+            for j in self.port_nums:
+                for k in self.K:
+                    base_rf = 0
+                    if i != j:
+                        is_reefer = k in self.K_Refrigerados
+                        ctype = 'REEFER' if is_reefer else 'DRY'
+                        cost_coef = get_coef(ctype)
+                        load_discharge = get_load(ctype)
+                        margin = get_margin(ctype)
+                        denom = 1.0 - margin
+                        if denom <= 0:
+                            denom = 1.0
+                        dp_ij = self._get_dp(i, j)
+                        base_rf = (dp_ij * cost_coef + load_discharge) / denom
+                    for c in self.C:
+                        for t in self.T:
+                            rows.append({'I': i, 'J': j, 'K': k, 'C': c, 'T': t, 'RF': base_rf})
+
+        self.RF = pd.DataFrame(rows)
+
+        # Exceção Manaus: RF[1, J] = RF[J, 1] = RF[10, J] + custo_manaus_belem para todo J (por K, C, T)
+        if apply_mao and MAO is not None and VLC is not None:
+            for j in self.port_nums:
+                for k in self.K:
+                    for c in self.C:
+                        for t in self.T:
+                            mask_vlc_j = (self.RF['I'] == VLC) & (self.RF['J'] == j) & (self.RF['K'] == k) & (self.RF['C'] == c) & (self.RF['T'] == t)
+                            rf_val = self.RF.loc[mask_vlc_j, 'RF'].values
+                            if len(rf_val) > 0:
+                                new_val = rf_val[0] + custo_manaus_belem
+                                self.RF.loc[(self.RF['I'] == MAO) & (self.RF['J'] == j) & (self.RF['K'] == k) & (self.RF['C'] == c) & (self.RF['T'] == t), 'RF'] = new_val
+                                self.RF.loc[(self.RF['I'] == j) & (self.RF['J'] == MAO) & (self.RF['K'] == k) & (self.RF['C'] == c) & (self.RF['T'] == t), 'RF'] = new_val

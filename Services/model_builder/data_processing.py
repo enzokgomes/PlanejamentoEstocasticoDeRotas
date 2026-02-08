@@ -8,7 +8,19 @@ def preprocess_data(dados, scenario):
     dados.CSC['CSC'] *= (1 + scenario.port_call_price_variation)
     dados.CSC['CSC'] = dados.CSC['CSC'].round(0)
 
-    dados.CI.iloc[0,1] *= (1+ scenario.intermodal_price_variation)
+    # Variação intermodal: aplicar aos parâmetros Cost Coefficient e Load/Discharge (DRY e REEFER) e recalcular RF
+    factor = 1 + scenario.intermodal_price_variation
+    for idx in dados.CI.index:
+        idx_lower = str(idx).lower()
+        if 'cost' in idx_lower and ('coef' in idx_lower or 'coefficient' in idx_lower):
+            for col in ['DRY', 'REEFER']:
+                if col in dados.CI.columns:
+                    dados.CI.loc[idx, col] = dados.CI.loc[idx, col] * factor
+        elif 'load' in idx_lower and 'discharge' in idx_lower:
+            for col in ['DRY', 'REEFER']:
+                if col in dados.CI.columns:
+                    dados.CI.loc[idx, col] = dados.CI.loc[idx, col] * factor
+    dados._compute_rf()
 
     # Definição de parâmetros-chave
     dados.NT = scenario.nt

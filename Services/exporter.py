@@ -2,6 +2,20 @@ import pandas as pd
 from Services.utils import aplicar_de_para, get_value
 import numpy_financial as npf
 
+
+def _get_ci_value(dados, param_substrings, cargo):
+    """Obtém valor do PAR INTERMODAL por busca parcial no índice (param_substrings na ordem) e coluna DRY/REEFER."""
+    cargo_col = cargo if cargo in dados.CI.columns else ('REEFER' if 'REEFER' in dados.CI.columns else None)
+    if cargo_col is None:
+        return 0.0
+    for idx in dados.CI.index:
+        idx_lower = str(idx).lower().strip()
+        if all(s.lower() in idx_lower for s in param_substrings):
+            v = dados.CI.loc[idx, cargo_col]
+            return float(v) if pd.notna(v) else 0.0
+    return 0.0
+
+
 def export_results(dados, vars, cenario, descricao_cenario, output_path):
     # Extrai as variáveis do modelo
     FF = vars['FF']
@@ -153,12 +167,13 @@ def export_results(dados, vars, cenario, descricao_cenario, output_path):
 
     custo_intermodal = pd.Series(0, index=dados.T)
 
-    frete_rodoviario_por_km_DRY = dados.CI.loc['Cost Coefficient', 'DRY'].values[0]
-    frete_rodoviario_por_km_REEFER = dados.CI.loc['Cost Coefficient', 'REEFER'].values[0]
-    custo_carga_descarga_DRY = dados.CI.loc['Load/Discharge Cost ', 'DRY'].values[0]
-    custo_carga_descarga_REEFER = dados.CI.loc['Load/Discharge Cost ', 'REEFER'].values[0]
-    fator_extra_intermodal_DRY = dados.CI.loc['Fator Extra Intermodal', 'DRY'].values[0]
-    fator_extra_intermodal_REEFER = dados.CI.loc['Fator Extra Intermodal', 'REEFER'].values[0]
+    # PAR INTERMODAL: busca flexível por nome do parâmetro (Cost Coef, Load/Discharge, Fator Extra)
+    frete_rodoviario_por_km_DRY = _get_ci_value(dados, ['cost', 'coef'], 'DRY')
+    frete_rodoviario_por_km_REEFER = _get_ci_value(dados, ['cost', 'coef'], 'REEFER')
+    custo_carga_descarga_DRY = _get_ci_value(dados, ['load', 'discharge'], 'DRY')
+    custo_carga_descarga_REEFER = _get_ci_value(dados, ['load', 'discharge'], 'REEFER')
+    fator_extra_intermodal_DRY = _get_ci_value(dados, ['fator', 'extra', 'intermodal'], 'DRY')
+    fator_extra_intermodal_REEFER = _get_ci_value(dados, ['fator', 'extra', 'intermodal'], 'REEFER')
 
     custo_unitario_DRY = (dist * frete_rodoviario_por_km_DRY + custo_carga_descarga_DRY) * (1 + fator_extra_intermodal_DRY)
     custo_unitario_REEFER = (dist * frete_rodoviario_por_km_REEFER + custo_carga_descarga_REEFER) * (1 + fator_extra_intermodal_REEFER)
