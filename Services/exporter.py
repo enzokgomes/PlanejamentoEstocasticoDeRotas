@@ -175,8 +175,6 @@ def export_results(dados, vars, cenario, descricao_cenario, output_path):
     fator_extra_intermodal_DRY = _get_ci_value(dados, ['fator', 'extra', 'intermodal'], 'DRY')
     fator_extra_intermodal_REEFER = _get_ci_value(dados, ['fator', 'extra', 'intermodal'], 'REEFER')
 
-    custo_unitario_DRY = (dist * frete_rodoviario_por_km_DRY + custo_carga_descarga_DRY) * (1 + fator_extra_intermodal_DRY)
-    custo_unitario_REEFER = (dist * frete_rodoviario_por_km_REEFER + custo_carga_descarga_REEFER) * (1 + fator_extra_intermodal_REEFER)
 
     for i in df_FF_port.index.levels[0]:
         for j in df_FF_port.index.levels[1]:
@@ -185,6 +183,9 @@ def export_results(dados, vars, cenario, descricao_cenario, output_path):
             else:
                 # Dist deve ser dist porto - capital...
                 dist = (dados.DC[dados.DC['Porto'] == i]['Distância Capital'].values[0] + dados.DC[dados.DC['Porto'] == j]['Distância Capital'].values[0] * 2)
+
+                custo_unitario_DRY = (dist * frete_rodoviario_por_km_DRY + custo_carga_descarga_DRY) * (1 + fator_extra_intermodal_DRY)
+                custo_unitario_REEFER = (dist * frete_rodoviario_por_km_REEFER + custo_carga_descarga_REEFER) * (1 + fator_extra_intermodal_REEFER)
                 
                 demanda_DRY = df_FF_port.loc[i, j, dados.K_Nao_Refrigerados, dados.C_not_feeder].sum()
                 demanda_REEFER = df_FF_port.loc[i, j, dados.K_Refrigerados, dados.C_not_feeder].sum()
@@ -292,6 +293,9 @@ def export_results(dados, vars, cenario, descricao_cenario, output_path):
                 continue
             else:
                 dist = (dados.DC[dados.DC['Porto'] == i_porto]['Distância Capital'].values[0] + dados.DC[dados.DC['Porto'] == dados.ordem.loc[j].values[0]]['Distância Capital'].values[0] * 2)
+                
+                custo_unitario_DRY = (dist * frete_rodoviario_por_km_DRY + custo_carga_descarga_DRY) * (1 + fator_extra_intermodal_DRY)
+                custo_unitario_REEFER = (dist * frete_rodoviario_por_km_REEFER + custo_carga_descarga_REEFER) * (1 + fator_extra_intermodal_REEFER)
 
                 demanda_DRY = sum(FF[p, j, k, c, t].x for k in dados.K_Nao_Refrigerados for c in dados.C_not_feeder) / dados.NV
                 demanda_REEFER = sum(FF[p, j, k, c, t].x for k in dados.K_Refrigerados for c in dados.C_not_feeder) / dados.NV

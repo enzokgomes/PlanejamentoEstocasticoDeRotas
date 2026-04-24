@@ -25,7 +25,7 @@ def set_objective(model, dados, vars):
                 ) * FF_port[i, j, k, c, t]
             )
             for i in dados.port_nums for j in dados.port_nums for k in dados.K for c in dados.C for t in dados.T
-        ) +
+        ) -
         quicksum(
             (
                 get_value(

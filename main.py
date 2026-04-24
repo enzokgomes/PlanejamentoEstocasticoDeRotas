@@ -7,7 +7,7 @@ current_folder_path = os.path.dirname(current_file_path)
 if os.getcwd() != current_folder_path:
     os.chdir(current_folder_path)
 
-px = [.35]
+px = [.35, .45]
 nt = [3500]
 exchange_rate_variation = [0]
 oil_price_variation = [0]
