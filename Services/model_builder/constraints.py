@@ -408,8 +408,12 @@ def enforce_fleet_capacity_limit(model, vars, dados):
             part3 = quicksum(E[j, k, t] for j in dados.port_nums)
             
             part4 = quicksum(
-                dados.TR(t_, delta, t) * FF[i, j, k, c, t_] * dados.SF[(dados.SF['I'] == dados.ordem.loc[j].values[0]) & (dados.SF['K'] == k) & (dados.SF['DT'] == delta)]['SF'].values[0] +
-                dados.TR(t_, delta, t) * FE[i, j, k, t_] * dados.SE[(dados.SE['K'] == k) & (dados.SE['DT'] == delta)]['SE'].values[0]
+                dados.TR(t_, delta, t) 
+                * FF[i, j, k, c, t_] 
+                * dados.SF[(dados.SF['I'] == dados.ordem.loc[j].values[0]) & (dados.SF['K'] == k) & (dados.SF['DT'] == delta)]['SF'].values[0] 
+                + dados.TR(t_, delta, t) 
+                * FE[i, j, k, t_] 
+                * dados.SE[(dados.SE['K'] == k) & (dados.SE['DT'] == delta)]['SE'].values[0]
                 for i in dados.P 
                 for j in dados.P 
                 for c in dados.C_not_feeder

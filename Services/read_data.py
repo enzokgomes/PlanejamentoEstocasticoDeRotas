@@ -70,7 +70,7 @@ class Dados:
         self.P = range(1, len(ordem) + 1) 
         self.K = range(1, 5)   # 4 tipos de contêineres
         self.K_Refrigerados = [2,4]
-        self.K_Nao_Refrigerados = [1,3]
+        self.K_Nao_Refrigerados = [1,3] 
         self.K_40pes = [1, 2]
         self.C = range(1, 3)   # 2 tipos de carga [1, 2]
         self.C_feeder = [2]

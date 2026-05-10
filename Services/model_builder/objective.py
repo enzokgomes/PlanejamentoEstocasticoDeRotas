@@ -17,7 +17,6 @@ def set_objective(model, dados, vars):
                     (dados.RF['T'] == t), 
                     'RF'
                 ) * FF_port[i, j, k, c, t] -
-
                 get_value(
                     dados.CM, 
                     (dados.CM['C'] == c), 
